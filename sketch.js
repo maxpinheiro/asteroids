@@ -1,4 +1,4 @@
-var gameState, ship, bullets;
+var gameState, ship, bullets, asteroids;
 
 function setup() {
     createCanvas(700, 500);
@@ -8,34 +8,60 @@ function setup() {
     textFont('Futura');
     ship = new Ship();
     bullets = [];
+    asteroids = [];
+    asteroids.push(new Asteroid());
 }
 
 function draw() {
-    //console.log(bullets.length);
+    //console.log(ship.vel);
     background(0);
     // initial screen
     if (gameState === -2) {
+        // draw background asteroids
+        for (var i = 0; i < asteroids.length; i++) {
+            asteroids[i].draw();
+            asteroids[i].update();
+        }
+
+        // on-screen text
         fill(255);
         noStroke();
         textSize(50);
         text("ASTEROIDS", width / 2, height / 2);
         textSize(15);
-        text("PRESS SPACE TO START", width / 2, height / 2 + 50)
-    } else if (gameState === 0) {
-        // draw ship
+        text("PRESS SPACE TO START", width / 2, height / 2 + 50);
+    } else if (gameState === 0) { // regular game state
+        // DRAW
         ship.draw();
         for (var i = 0; i < bullets.length; i++) {
             bullets[i].draw();
         }
-        // update ship
+        for (var i = 0; i < asteroids.length; i++) {
+            asteroids[i].draw();
+        }
+
+        // UPDATE
         ship.update();
         for (var i = 0; i < bullets.length; i++) {
             bullets[i].update();
         }
+        for (var i = 0; i < asteroids.length; i++) {
+            asteroids[i].update();
+        }
+
         // remove dead bullets
         for (var i = 0; i < bullets.length; i++) {
             if (!bullets[i].alive) {
                 bullets.splice(i, 1);
+            }
+        }
+
+        // check collisions
+        for (var i = 0; i < bullets.length; i++) {
+            for (var j = 0; j < asteroids.length; j++) {
+                if (bullets[i].hits(asteroids[j])) {
+                    
+                }
             }
         }
     }
@@ -52,21 +78,25 @@ function keyPressed() {
             }
         } else if (gameState === 0) {
             if (ship.alive === 1) {
-                bullets.push(new Bullet(ship.x + ship.radius * cos(ship.rotation - 90), ship.y + ship.radius * sin(ship.rotation - 90), ship.rotation));
+                bullets.push(new Bullet(ship.pos.x + ship.radius * cos(ship.rotation), 
+                ship.pos.y + ship.radius * sin(ship.rotation), 
+                ship.rotation));
             }
         }
     }
 
     // rotating
     if (keyCode === RIGHT_ARROW) {
-        ship.rotationSpeed = 3;
+        ship.rotationSpeed = 5;
     } else if (keyCode === LEFT_ARROW) {
-        ship.rotationSpeed = -3;
+        ship.rotationSpeed = -5;
     }
 
     // moving
     if (keyCode === UP_ARROW) {
-        ship.acceleration = 0.5;
+        ship.accelerating = true;
+        //var force = createVector(cos(ship.rotation), sin(ship.rotation));
+        //ship.vel.add(force);
     }
 }
 
@@ -76,6 +106,6 @@ function keyReleased() {
     }
 
     if (keyCode === UP_ARROW) {
-        ship.acceleration = -0.07;
+        ship.accelerating = false;
     }
 }
