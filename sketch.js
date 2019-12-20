@@ -9,7 +9,9 @@ function setup() {
     ship = new Ship();
     bullets = [];
     asteroids = [];
-    asteroids.push(new Asteroid());
+    for (var i = 0; i < 15; i++) {
+        asteroids.push(new Asteroid(createVector(random(width), random(height)), random(30, 100)));
+    }
 }
 
 function draw() {
@@ -58,10 +60,24 @@ function draw() {
 
         // check collisions
         for (var i = 0; i < bullets.length; i++) {
-            for (var j = 0; j < asteroids.length; j++) {
+            for (var j = asteroids.length - 1; j >= 0; j--) {
                 if (bullets[i].hits(asteroids[j])) {
-                    
+                    if (asteroids[j].radius > 15) {
+                        var newAsteroids = asteroids[j].breakup();
+                        asteroids = asteroids.concat(newAsteroids);
+                    } else {
+                        // increase score?
+                    }
+                    asteroids.splice(j, 1);
+                    bullets.splice(i, 1);
+                    break;
                 }
+            }
+        }
+
+        for (var i = 0; i < asteroids.length; i++) {
+            if (ship.hits(asteroids[i])) {
+                console.log("ooops!");
             }
         }
     }

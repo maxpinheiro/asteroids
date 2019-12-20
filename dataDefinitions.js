@@ -45,7 +45,7 @@ class Ship {
         };
 
         this.update = function () {
-            this.rotation += this.rotationSpeed;
+            this.rotation += this.rotationSpeed * 0.75;
 
             // update position
             this.pos.add(this.vel);
@@ -55,7 +55,7 @@ class Ship {
 
             // update velocity
             if (this.accelerating) { // if accelerating --> increase based on current direction
-                var a = createVector(0.25 * cos(ship.rotation), 0.25 * sin(ship.rotation));
+                var a = createVector(0.15 * cos(ship.rotation), 0.15 * sin(ship.rotation));
                 this.vel.add(a);
             } else { // gravity --> decelerate
                 this.vel.mult(0.97);
@@ -65,6 +65,11 @@ class Ship {
             if (this.vel.mag() >= 15) {
                 this.vel.setMag(15);
             }
+        };
+
+        this.hits = function (asteroid) {
+            var d = dist(this.pos.x, this.pos.y, asteroid.pos.x, asteroid.pos.y);
+            return (d < this.radius + asteroid.radius);
         };
     }
 }
@@ -85,39 +90,50 @@ class Bullet {
         this.alive = true;
 
         this.draw = function () {
-            if (this.alive) {
-                stroke(255);
-                noFill();
-                //circle(this.pos.x, this.pos.y, this.radius * 2);
-                push();
-                strokeWeight(4);
-                point(this.pos.x, this.pos.y);
-                pop();
-            }
+            stroke(255);
+            noFill();
+            push();
+            strokeWeight(4);
+            point(this.pos.x, this.pos.y);
+            pop();
         };
 
         this.update = function () {
             this.pos.add(this.vel);
-            //if (this.pos.x - this.radius > width || this.pos.x + width < 0 || this.pos.y - this.radius > height || this.pos.y + this.radius < 0) {
             if (this.pos.x > width || this.pos.x < 0 || this.pos.y > height || this.pos.y < 0) {
                 this.alive = false;
             }
         };
+
+        this.hits = function (asteroid) {
+            var d = dist(this.pos.x, this.pos.y, asteroid.pos.x, asteroid.pos.y);
+            return (d < asteroid.radius);
+        };
+
     }
 }
 
 /* */
 
 class Asteroid {
-    constructor() {
-        this.pos = createVector(random(width), random(height));
+    constructor(pos, radius) {
+        if (pos) {
+            this.pos = pos.copy();
+        } else {
+            this.pos = createVector(random(width), random(height));
+        }
         this.vel = p5.Vector.random2D();
-        this.radius = 50;
+        if (radius) {
+            this.radius = radius * 0.5;
+        } else {
+            this.radius = 50;
+        }
         this.vertices = 10;
         this.offsets = [];
         // initialize offsets
         for (var i = 0; i < this.vertices; i++) {
-            this.offsets[i] = (random(-15, 7));
+            //this.offsets[i] = (random(-15, 7));
+            this.offsets[i] = random(-this.radius * 0.4, this.radius * 0.2);
         }
 
         this.draw = function () {
@@ -142,7 +158,14 @@ class Asteroid {
             // wrap around edges
             this.pos.set((this.pos.x + width + this.radius) % (width + this.radius),
                 (this.pos.y + height + this.radius) % (height + this.radius));
-            
-        }
+
+        };
+
+        this.breakup = function () {
+            var newAsteroids = [];
+            newAsteroids[0] = new Asteroid(this.pos, this.radius);
+            newAsteroids[1] = new Asteroid(this.pos, this.radius);
+            return newAsteroids;
+        };
     }
 }
