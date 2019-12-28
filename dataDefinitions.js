@@ -23,6 +23,7 @@ class Ship {
         this.rotationSpeed = 0;
         this.score = 0;
         this.recovering = 0;
+        this.lives = 3;
 
         this.draw = function () {
             if (this.alive === 1) {
@@ -49,7 +50,7 @@ class Ship {
                 // draw shield if recovering
                 if (this.recovering > 0) {
                     stroke(0, 145, 255);
-                    fill(255, 50);
+                    fill(0, 145, 255, 50);
                     circle(this.pos.x, this.pos.y, this.radius * 3);
                 }
             } else if (this.alive === 2 || this.dying > 0) { // break into pieces
@@ -97,6 +98,9 @@ class Ship {
                     this.resetShip();
                     this.recovering = 10;
                 }
+                var floating = createVector(cos(this.rotation), sin(this.rotation));
+                floating.setMag(0.5);
+                this.pos.add(floating);
             }
 
         };
@@ -113,6 +117,7 @@ class Ship {
             this.accelerating = false;
             this.rotation = -90;
             this.rotationSpeed = 0;
+            ship.lives = max(ship.lives - 1, 0);
         };
     }
 }

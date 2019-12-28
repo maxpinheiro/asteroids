@@ -43,11 +43,25 @@ function draw() {
             asteroids[i].draw();
         }
         
+        // score text
         textSize(25);
         textAlign(LEFT);
         fill(255, 50);
         noStroke();
         text(ship.score, 5, 25);
+
+        // lives
+        push();
+        var lives = ship.lives;
+        stroke(255, 70);
+        noFill();
+        translate(width - 15, 20);
+        while (lives > 0) {
+            triangle(-12, 12, 12, 12, 0, -12 * 1.25);
+            translate(-30, 0);
+            lives--;
+        }
+        pop();
 
         // UPDATE
         
@@ -123,6 +137,9 @@ function keyPressed() {
                 bullets.push(new Bullet(ship.pos.x + ship.radius * cos(ship.rotation), 
                 ship.pos.y + ship.radius * sin(ship.rotation), 
                 ship.rotation));
+            }
+            if (ship.recovering > 0) {
+                ship.recovering = 0;
             }
         }
     }
