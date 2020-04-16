@@ -1,4 +1,5 @@
 var gameState, ship, bullets, asteroids, time;
+var audioElement;
 
 function setup() {
     createCanvas(700, 500);
@@ -12,6 +13,8 @@ function setup() {
         asteroids.push(new Asteroid(createVector(random(width), random(height)), random(30, 100)));
     }
     time = 0;
+
+    audioElement = new Audio('laser.m4a');
 }
 
 function draw() {
@@ -137,6 +140,7 @@ function keyPressed() {
                 bullets.push(new Bullet(ship.pos.x + ship.radius * cos(ship.rotation), 
                 ship.pos.y + ship.radius * sin(ship.rotation), 
                 ship.rotation));
+                audioElement.play(0.001);
             }
             if (ship.recovering > 0) {
                 ship.recovering = 0;
